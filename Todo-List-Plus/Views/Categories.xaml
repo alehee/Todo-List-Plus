@@ -12,7 +12,7 @@
         </ResourceDictionary>
     </ContentPage.Resources>
     
-    <VerticalStackLayout>
+    <VerticalStackLayout x:Name="VSL_Main">
         <Label 
             Text="Cześć, Kamil Nowak!"
             HorizontalOptions="Center"
@@ -31,32 +31,5 @@
             <Button Text="Dodaj listę" />
             <Button Text="Dodaj kategorię" />
         </HorizontalStackLayout>
-
-        <VerticalStackLayout
-            HorizontalOptions="Center"
-            WidthRequest="300">
-            <VerticalStackLayout.Resources>
-                <ResourceDictionary>
-                    <Style TargetType="Label">
-                        <Setter Property="Margin" Value="10,0,10,0" />
-                        <Setter Property="TextColor" Value="White" />
-                    </Style>
-                </ResourceDictionary>
-            </VerticalStackLayout.Resources>
-            <Label
-                Text="Nazwa kategorii"
-                HorizontalTextAlignment="Center"
-                FontSize="18"
-                FontAttributes="Bold"/>
-            <Label
-                Text="Lista 1"
-                HorizontalTextAlignment="Center"/>
-            <Label
-                Text="Lista 2"
-                HorizontalTextAlignment="Center"/>
-            <Label
-                Text="Lista 3"
-                HorizontalTextAlignment="Center"/>
-        </VerticalStackLayout>
     </VerticalStackLayout>
 </ContentPage>
