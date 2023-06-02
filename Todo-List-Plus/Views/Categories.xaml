@@ -20,7 +20,7 @@
 
         <HorizontalStackLayout
             HorizontalOptions="Center"
-            Margin="0,20">
+            Margin="0,10">
             <HorizontalStackLayout.Resources>
                 <ResourceDictionary>
                     <Style TargetType="Button">
@@ -28,8 +28,10 @@
                     </Style>
                 </ResourceDictionary>
             </HorizontalStackLayout.Resources>
-            <Button Text="Dodaj listę" />
-            <Button Text="Dodaj kategorię" />
+            <Button Text="Dodaj listę" Clicked="Button_AddList_Clicked" />
+            <Button Text="Dodaj kategorię" Clicked="Button_AddCategory_Clicked" />
         </HorizontalStackLayout>
+
+        <!-- Tutaj wpadają kategorie -->
     </VerticalStackLayout>
 </ContentPage>
