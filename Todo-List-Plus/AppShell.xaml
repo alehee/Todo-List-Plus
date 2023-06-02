@@ -12,8 +12,8 @@
     Shell.ForegroundColor="White">
 
     <ShellContent
-        Title="Categories"
-        ContentTemplate="{DataTemplate views:Categories}"
-        Route="categories" />
+        Title="Login"
+        ContentTemplate="{DataTemplate views:Login}"
+        Route="login" />
 
 </Shell>
