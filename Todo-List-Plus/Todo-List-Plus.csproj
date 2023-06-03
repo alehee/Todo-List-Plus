@@ -49,6 +49,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Env.cs.template" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Include="Env.cs.template" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Update="Views\Categories.xaml.cs">
 	    <DependentUpon>Categories.xaml</DependentUpon>
 	  </Compile>

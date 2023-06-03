@@ -1,16 +1,19 @@
 using Todo_List_Plus.Models;
+using Todo_List_Plus.Services;
 
 namespace Todo_List_Plus.Views;
 
 public partial class Categories : ContentPage
 {
 	List<Category> ListOfCategories { get; set; } = new();
+    User LoggedUser { get; set; }
 
 	public Categories()
 	{
 		InitializeComponent();
 
         ListOfCategories = _FillTestData();
+        LoggedUser = new User { Id = 1, Username = "Skafander" };
 		foreach (Category category in ListOfCategories)
 		{
 			AppendCategory(category);
@@ -113,7 +116,9 @@ public partial class Categories : ContentPage
 		if (result is not null)
 		{
 			Console.WriteLine($"Adding category with name {result}");
-            // TODO endpoint i refresh
+            bool apiResult = await RestService.CategoryAdd(result, LoggedUser);
+            Console.WriteLine($"API call 'CategoryAdd' finished with result {apiResult.ToString()}");
+            // TODO refresh
         }
     }
 
