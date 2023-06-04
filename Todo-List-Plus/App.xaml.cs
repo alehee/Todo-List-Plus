@@ -1,4 +1,6 @@
-﻿namespace Todo_List_Plus;
+﻿using Todo_List_Plus.Views;
+
+namespace Todo_List_Plus;
 
 public partial class App : Application
 {
@@ -6,6 +8,6 @@ public partial class App : Application
 	{
 		InitializeComponent();
 
-		MainPage = new AppShell();
+        MainPage = new NavigationPage(new Categories());
 	}
 }
