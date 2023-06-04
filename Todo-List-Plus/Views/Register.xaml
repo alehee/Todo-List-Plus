@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Todo_List_Plus.Views.Register"
+             Title="Register"
+             BackgroundColor="#383838">
+    <StackLayout 
+        Padding="40" 
+        VerticalOptions="Center" 
+        HorizontalOptions="FillAndExpand">
+        <Label 
+            Text="Todo List Plus Register" 
+            FontSize="40" 
+            TextColor="White" 
+            Padding="0,0,0,40"/>
+
+        <Entry 
+            x:Name="txtUsernameRegister" 
+            Placeholder="Username" 
+            TextColor="White" 
+            PlaceholderColor="White" 
+            BackgroundColor="#211f1f" 
+            Margin="10"/>
+        <Entry 
+            x:Name="txtPasswordRegister" 
+            Placeholder="Password" 
+            IsPassword="True" 
+            TextColor="White" 
+            PlaceholderColor="White" 
+            BackgroundColor="#211f1f" 
+            Margin="10"/>
+        <Entry 
+            x:Name="txtRetypeRegister" 
+            Placeholder="Retype Password" 
+            IsPassword="True" 
+            TextColor="White" 
+            PlaceholderColor="White" 
+            BackgroundColor="#211f1f" 
+            Margin="10"/>
+
+        <Button
+            VerticalOptions="Center"
+            Text="Register"
+            BorderWidth="1.5"
+            CornerRadius="50"
+            Clicked="RegisterMeBtnClick"></Button>
+
+    </StackLayout>
+</ContentPage>
