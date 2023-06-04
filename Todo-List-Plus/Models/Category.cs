@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Todo_List_Plus.Models
 {
-    class Category
+    public class Category
     {
         public int Id { get; set; }
         public string Name { get; set; }

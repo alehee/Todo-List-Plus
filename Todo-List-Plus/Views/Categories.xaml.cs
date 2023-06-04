@@ -5,20 +5,42 @@ namespace Todo_List_Plus.Views;
 
 public partial class Categories : ContentPage
 {
-	List<Category> ListOfCategories { get; set; } = new();
+	IEnumerable<Category> ListOfCategories { get; set; }
     User LoggedUser { get; set; }
 
 	public Categories()
 	{
 		InitializeComponent();
 
-        ListOfCategories = _FillTestData();
+        NavigationPage.SetHasNavigationBar(this, false);
+        NavigationPage.SetBackButtonTitle(this, null);
+
         LoggedUser = new User { Id = 1, Username = "Skafander" };
-		foreach (Category category in ListOfCategories)
-		{
-			AppendCategory(category);
-		}
+
+        RefreshView();
 	}
+
+    async void RefreshView()
+    {
+        L_Welcome.Text = $"Czeœæ, {LoggedUser.Username}!";
+        ListOfCategories = await RestService.CategoriesGet(LoggedUser);
+        
+        if (ListOfCategories is null)
+        {
+            Console.WriteLine("There was an error while loading the data");
+            return;
+        }
+
+        foreach (Category category in ListOfCategories)
+        {
+            AppendCategory(category);
+        }
+    }
+
+    async Task ReloadView()
+    {
+        await Navigation.PushAsync(new Categories());
+    }
 
 	void AppendCategory(Category category)
 	{
@@ -94,7 +116,7 @@ public partial class Categories : ContentPage
 
     private async void Button_AddList_Clicked(object sender, EventArgs e)
     {
-		Console.WriteLine("Adding a list modal");
+        Console.WriteLine("Adding a list modal");
         string[] categoriesStrings = ListOfCategories.Select(a => a.Name).ToArray();
         string action = await DisplayActionSheet("Wybierz kategoriê", "Anuluj", null, categoriesStrings);
 		var categoryQuery = ListOfCategories.Where(a => a.Name == action);
@@ -104,7 +126,15 @@ public partial class Categories : ContentPage
 			if (result is not null)
 			{
                 Console.WriteLine($"Adding list with name {result} to category {action}");
-				// TODO endpoint i refresh
+                bool apiResult = await RestService.ListAdd(result, categoryQuery.Single(), LoggedUser);
+                if (apiResult)
+                {
+                    Console.WriteLine($"API call 'ListAdd' finished with result {apiResult}");
+                    ToastService.ShowShort("Poprawnie dodano now¹ listê");
+                    await ReloadView();
+                }
+                else
+                    ToastService.ShowShort("Wyst¹pi³ problem podczas dodawania listy");
             }
 		}
     }
@@ -117,8 +147,14 @@ public partial class Categories : ContentPage
 		{
 			Console.WriteLine($"Adding category with name {result}");
             bool apiResult = await RestService.CategoryAdd(result, LoggedUser);
-            Console.WriteLine($"API call 'CategoryAdd' finished with result {apiResult.ToString()}");
-            // TODO refresh
+            if (apiResult)
+            {
+                Console.WriteLine($"API call 'CategoryAdd' finished with result {apiResult}");
+                ToastService.ShowShort("Poprawnie dodano now¹ kategoriê");
+                await ReloadView();
+            }
+            else
+                ToastService.ShowShort("Wyst¹pi³ problem podczas dodawania kategorii");
         }
     }
 
@@ -134,6 +170,9 @@ public partial class Categories : ContentPage
     {
         var sender = (Label)s;
         Console.WriteLine($"Double tapped category with name {sender.ClassId}");
+
+        var category = ListOfCategories.Where(a => a.Name == sender.Text);
+
         string action = await DisplayActionSheet("Opcje kategorii", "Anuluj", null, new string[] { "Edytuj", "Usuñ" });
 		if (action == "Edytuj")
 		{
@@ -141,7 +180,15 @@ public partial class Categories : ContentPage
 			if ( result is not null)
 			{
                 Console.WriteLine($"Changing category name from {sender.Text} to {result}");
-                // TODO endpoint i refresh
+                bool apiResult = await RestService.CategoryEdit(result, category.Single());
+                if (apiResult)
+                {
+                    Console.WriteLine($"API call 'CategoryEdit' finished with result {apiResult}");
+                    ToastService.ShowShort("Poprawnie zmieniono nazwê kategorii");
+                    await ReloadView();
+                }
+                else
+                    ToastService.ShowShort("Wyst¹pi³ problem podczas zmieniania nazwy kategorii");
             }
         }
 		else if (action == "Usuñ")
@@ -150,7 +197,15 @@ public partial class Categories : ContentPage
 			if (answer)
 			{
                 Console.WriteLine($"Deleting category with name {sender.Text}");
-                // TODO endpoint i refresh
+                bool apiResult = await RestService.CategoryDelete(category.Single());
+                if (apiResult)
+                {
+                    Console.WriteLine($"API call 'CategoryDelete' finished with result {apiResult}");
+                    ToastService.ShowShort("Poprawnie usuniêto kategoriê");
+                    await ReloadView();
+                }
+                else
+                    ToastService.ShowShort("Wyst¹pi³ problem podczas usuwania kategorii");
             }
         }
     }
@@ -166,6 +221,13 @@ public partial class Categories : ContentPage
     {
         var sender = (Label)s;
         Console.WriteLine($"Double tapped list with name {sender.ClassId}");
+
+        var listClassIdSplit = sender.ClassId.ToString().Replace("list_", "").Split('_');
+        int categoryId = Convert.ToInt32(listClassIdSplit[0]);
+        int listId = Convert.ToInt32(listClassIdSplit[1]);
+        var category = ListOfCategories.Where(a => a.Id == categoryId);
+        var list = category.Single().Lists.Where(a => a.Id == listId);
+
         string action = await DisplayActionSheet("Opcje listy", "Anuluj", null, new string[] { "Edytuj", "Usuñ" });
         if (action == "Edytuj")
         {
@@ -173,7 +235,15 @@ public partial class Categories : ContentPage
             if (result is not null)
             {
                 Console.WriteLine($"Changing list name from {sender.Text} to {result}");
-                // TODO endpoint i refresh
+                bool apiResult = await RestService.ListEdit(result, category.Single(), list.Single(), LoggedUser);
+                if (apiResult)
+                {
+                    Console.WriteLine($"API call 'ListEdit' finished with result {apiResult}");
+                    ToastService.ShowShort("Poprawnie zmieniono nazwê listy");
+                    await ReloadView();
+                }
+                else
+                    ToastService.ShowShort("Wyst¹pi³ problem podczas zmieniania nazwy listy");
             }
         }
         else if (action == "Usuñ")
@@ -182,19 +252,16 @@ public partial class Categories : ContentPage
             if (answer)
             {
                 Console.WriteLine($"Deleting list with name {sender.Text}");
-                // TODO endpoint i refresh
+                bool apiResult = await RestService.ListDelete(list.Single());
+                if (apiResult)
+                {
+                    Console.WriteLine($"API call 'ListDelete' finished with result {apiResult}");
+                    ToastService.ShowShort("Poprawnie usuniêto listê");
+                    await ReloadView();
+                }
+                else
+                    ToastService.ShowShort("Wyst¹pi³ problem podczas usuwania listy");
             }
         }
-    }
-
-    List<Category> _FillTestData()
-    {
-        List<Category> list = new()
-        {
-            new Category { Id = 1, Name = "Kategoria pierwsza", Lists = new List<Models.List> { new List { Id = 1, Name = "Zadanie pierwsze" }, new List { Id = 2, Name = "Zadanie drugie" }, new List { Id = 3, Name = "Zadanie trzecie" } } },
-            new Category { Id = 2, Name = "Kategoria druga", Lists = new List<Models.List> { new List { Id = 4, Name = "Zadanie pierwsze" }, new List { Id = 5, Name = "Zadanie drugie" }, new List { Id = 6, Name = "Zadanie trzecie" } } }
-        };
-
-        return list;
     }
 }

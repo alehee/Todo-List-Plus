@@ -13,8 +13,9 @@
     </ContentPage.Resources>
     
     <VerticalStackLayout x:Name="VSL_Main">
-        <Label 
-            Text="Cześć, Kamil Nowak!"
+        <Label
+            x:Name="L_Welcome"
+            Text="Cześć, użytkowniku!"
             HorizontalOptions="Center"
             Margin="0,50,0,30"/>
 
