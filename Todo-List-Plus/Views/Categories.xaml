@@ -29,6 +29,7 @@
                     </Style>
                 </ResourceDictionary>
             </HorizontalStackLayout.Resources>
+            <Button Text="Wyloguj" Clicked="Button_Logout_Clicked"/>
             <Button Text="Dodaj listę" Clicked="Button_AddList_Clicked" />
             <Button Text="Dodaj kategorię" Clicked="Button_AddCategory_Clicked" />
         </HorizontalStackLayout>

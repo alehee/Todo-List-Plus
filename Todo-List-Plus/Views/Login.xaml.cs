@@ -1,3 +1,4 @@
+using Todo_List_Plus.Models;
 using Todo_List_Plus.Services;
 
 namespace Todo_List_Plus.Views;
@@ -12,12 +13,12 @@ public partial class Login : ContentPage
         NavigationPage.SetBackButtonTitle(this, null);
     }
 
-	private async void LoginBtnClick(object sender, EventArgs e)
+	private void LoginBtnClick(object sender, EventArgs e)
 	{
 		string username = txtUsername.Text;
 		string password = txtPassword.Text;
 
-        if (username != "" || password != "")
+        if (username == "" || password == "")
 		{
 			ToastService.ShowShort("Fill all of the entries");
 			return;
@@ -32,6 +33,13 @@ public partial class Login : ContentPage
 
 	private async void Validate(string username, string password)
 	{
-		// TODO
+		Console.WriteLine($"Trying to validate u: {username}, p: {password}");
+		User? user = await RestService.Login(username, password);
+		if (user is null)
+		{
+            ToastService.ShowShort("Check your login credentials");
+			return;
+        }
+		await Navigation.PushAsync(new Categories(user));
 	}
 }

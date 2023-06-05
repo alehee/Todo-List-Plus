@@ -16,7 +16,7 @@ namespace Todo_List_Plus.Services
     static class RestService
     {
         #region Login
-        public static async Task<bool> Login(string username, string password)
+        public static async Task<User?> Login(string username, string password)
         {
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.PostAsync(Env.API_HOST + $"api/Todo/Login?username={HttpUtility.UrlEncodeUnicode(username)}&password={HttpUtility.UrlEncodeUnicode(password)}", null);
@@ -24,13 +24,17 @@ namespace Todo_List_Plus.Services
             if (response.IsSuccessStatusCode)
             {
                 var jsonNode = JsonNode.Parse(await response.Content.ReadAsStringAsync());
-                return jsonNode["type"].ToString() == "SUCCESS";
+                if (jsonNode["type"].ToString() != "SUCCESS")
+                    return null;
+
+                var jsonUser = jsonNode["message"];
+                return new User { Id = (int)jsonUser["id"], Username = (string)jsonUser["username"] };
             }
 
-            return false;
+            return null;
         }
 
-        public static async Task<bool> Register(string username, string password)
+        public static async Task<string> Register(string username, string password)
         {
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.PostAsync(Env.API_HOST + $"api/Todo/Register?username={HttpUtility.UrlEncodeUnicode(username)}&password={HttpUtility.UrlEncodeUnicode(password)}", null);
@@ -38,10 +42,12 @@ namespace Todo_List_Plus.Services
             if (response.IsSuccessStatusCode)
             {
                 var jsonNode = JsonNode.Parse(await response.Content.ReadAsStringAsync());
-                return jsonNode["type"].ToString() == "SUCCESS";
+                if (jsonNode["type"].ToString() != "SUCCESS")
+                    return (string)jsonNode["message"];
+                return "OK";
             }
 
-            return false;
+            return "An error occured while connecting to the server";
         }
         #endregion
 
