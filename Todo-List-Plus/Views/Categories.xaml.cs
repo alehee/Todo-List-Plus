@@ -8,14 +8,14 @@ public partial class Categories : ContentPage
 	IEnumerable<Category> ListOfCategories { get; set; }
     User LoggedUser { get; set; }
 
-	public Categories()
+	public Categories(User user)
 	{
 		InitializeComponent();
 
         NavigationPage.SetHasNavigationBar(this, false);
         NavigationPage.SetBackButtonTitle(this, null);
 
-        LoggedUser = new User { Id = 1, Username = "Skafander" };
+        LoggedUser = user;
 
         RefreshView();
 	}
@@ -39,7 +39,7 @@ public partial class Categories : ContentPage
 
     async Task ReloadView()
     {
-        await Navigation.PushAsync(new Categories());
+        await Navigation.PushAsync(new Categories(LoggedUser));
     }
 
 	void AppendCategory(Category category)
@@ -113,6 +113,12 @@ public partial class Categories : ContentPage
             }
 		}
 	}
+
+    private async void Button_Logout_Clicked(object sender, EventArgs e)
+    {
+        Console.WriteLine("Logging out");
+        await Navigation.PushAsync(new Login());
+    }
 
     private async void Button_AddList_Clicked(object sender, EventArgs e)
     {
