@@ -41,5 +41,6 @@ public partial class Login : ContentPage
 			return;
         }
 		await Navigation.PushAsync(new Categories(user));
+		
 	}
 }

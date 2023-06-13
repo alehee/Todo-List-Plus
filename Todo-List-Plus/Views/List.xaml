@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Todo_List_Plus.Views.List"
+             Title="List"
+             BackgroundColor="#383838">
+    <VerticalStackLayout>
+        
+        <HorizontalStackLayout
+            HorizontalOptions="Center"
+            Margin="0,10">
+            <HorizontalStackLayout.Resources>
+                <ResourceDictionary>
+                    <Style TargetType="Button">
+                        <Setter Property="Margin" Value="0,0,10,0" />
+                    </Style>
+                </ResourceDictionary>
+            </HorizontalStackLayout.Resources>
+            <Button Text="Odśwież"/>
+            <Button Text="Dodaj użytkownika"/>
+            <Button Text="Dodaj zadanie"/>
+        </HorizontalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>
