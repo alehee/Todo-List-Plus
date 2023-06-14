@@ -15,7 +15,7 @@
     <VerticalStackLayout x:Name="VSL_Main">
         <Label
             x:Name="L_Welcome"
-            Text="Cześć, użytkowniku!"
+            Text="Hello, user!"
             HorizontalOptions="Center"
             Margin="0,50,0,30"/>
 
@@ -29,9 +29,9 @@
                     </Style>
                 </ResourceDictionary>
             </HorizontalStackLayout.Resources>
-            <Button Text="Wyloguj" Clicked="Button_Logout_Clicked"/>
-            <Button Text="Dodaj listę" Clicked="Button_AddList_Clicked" />
-            <Button Text="Dodaj kategorię" Clicked="Button_AddCategory_Clicked" />
+            <Button Text="Logout" Clicked="Button_Logout_Clicked"/>
+            <Button Text="Add list" Clicked="Button_AddList_Clicked" />
+            <Button Text="Add category" Clicked="Button_AddCategory_Clicked" />
         </HorizontalStackLayout>
 
         <!-- Tutaj wpadają kategorie -->
