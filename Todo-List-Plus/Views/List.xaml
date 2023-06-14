@@ -16,9 +16,9 @@
                     </Style>
                 </ResourceDictionary>
             </HorizontalStackLayout.Resources>
-            <Button Text="Odśwież"/>
-            <Button Text="Dodaj użytkownika"/>
-            <Button Text="Dodaj zadanie"/>
+            <Button Text="Refresh"/>
+            <Button Text="Add user"/>
+            <Button Text="Add task"/>
         </HorizontalStackLayout>
     </VerticalStackLayout>
 </ContentPage>
