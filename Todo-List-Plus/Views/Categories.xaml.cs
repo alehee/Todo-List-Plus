@@ -22,7 +22,7 @@ public partial class Categories : ContentPage
 
     async void RefreshView()
     {
-        L_Welcome.Text = $"Czeœæ, {LoggedUser.Username}!";
+        L_Welcome.Text = $"Hello, {LoggedUser.Username}!";
         ListOfCategories = await RestService.CategoriesGet(LoggedUser);
         
         if (ListOfCategories is null)
@@ -124,11 +124,11 @@ public partial class Categories : ContentPage
     {
         Console.WriteLine("Adding a list modal");
         string[] categoriesStrings = ListOfCategories.Select(a => a.Name).ToArray();
-        string action = await DisplayActionSheet("Wybierz kategoriê", "Anuluj", null, categoriesStrings);
+        string action = await DisplayActionSheet("Select category", "Cancel", null, categoriesStrings);
 		var categoryQuery = ListOfCategories.Where(a => a.Name == action);
         if (categoryQuery.Any())
 		{
-			string result = await DisplayPromptAsync("Dodaj listê", "Podaj nazwê listy", cancel: "Anuluj");
+			string result = await DisplayPromptAsync("Add list", "Enter list name", cancel: "Cancel");
 			if (result is not null)
 			{
                 Console.WriteLine($"Adding list with name {result} to category {action}");
@@ -136,11 +136,11 @@ public partial class Categories : ContentPage
                 if (apiResult)
                 {
                     Console.WriteLine($"API call 'ListAdd' finished with result {apiResult}");
-                    ToastService.ShowShort("Poprawnie dodano now¹ listê");
+                    ToastService.ShowShort("Successfully added a new list!");
                     await ReloadView();
                 }
                 else
-                    ToastService.ShowShort("Wyst¹pi³ problem podczas dodawania listy");
+                    ToastService.ShowShort("An error occured while adding the list");
             }
 		}
     }
@@ -148,7 +148,7 @@ public partial class Categories : ContentPage
 	private async void Button_AddCategory_Clicked(object sender, EventArgs e)
 	{
         Console.WriteLine("Adding a category modal");
-		string result = await DisplayPromptAsync("Dodaj kategoriê", "Podaj nazwê kategorii", cancel:"Anuluj");
+		string result = await DisplayPromptAsync("Add category", "Enter category name", cancel:"Cancel");
 		if (result is not null)
 		{
 			Console.WriteLine($"Adding category with name {result}");
@@ -156,11 +156,11 @@ public partial class Categories : ContentPage
             if (apiResult)
             {
                 Console.WriteLine($"API call 'CategoryAdd' finished with result {apiResult}");
-                ToastService.ShowShort("Poprawnie dodano now¹ kategoriê");
+                ToastService.ShowShort("Successfully adde new category");
                 await ReloadView();
             }
             else
-                ToastService.ShowShort("Wyst¹pi³ problem podczas dodawania kategorii");
+                ToastService.ShowShort("An error occured while adding the category");
         }
     }
 
@@ -179,10 +179,10 @@ public partial class Categories : ContentPage
 
         var category = ListOfCategories.Where(a => a.Name == sender.Text);
 
-        string action = await DisplayActionSheet("Opcje kategorii", "Anuluj", null, new string[] { "Edytuj", "Usuñ" });
-		if (action == "Edytuj")
+        string action = await DisplayActionSheet("Category options", "Cancel", null, new string[] { "Edit", "Delete" });
+		if (action == "Edit")
 		{
-            string result = await DisplayPromptAsync("Edytuj kategoriê", "Podaj nazwê kategorii", cancel: "Anuluj", initialValue:sender.Text);
+            string result = await DisplayPromptAsync("Edit category", "Enter category name", cancel: "Cancel", initialValue:sender.Text);
 			if ( result is not null)
 			{
                 Console.WriteLine($"Changing category name from {sender.Text} to {result}");
@@ -190,16 +190,16 @@ public partial class Categories : ContentPage
                 if (apiResult)
                 {
                     Console.WriteLine($"API call 'CategoryEdit' finished with result {apiResult}");
-                    ToastService.ShowShort("Poprawnie zmieniono nazwê kategorii");
+                    ToastService.ShowShort("Successfully changed category name");
                     await ReloadView();
                 }
                 else
-                    ToastService.ShowShort("Wyst¹pi³ problem podczas zmieniania nazwy kategorii");
+                    ToastService.ShowShort("An error occured while editing the category");
             }
         }
-		else if (action == "Usuñ")
+		else if (action == "Delete")
 		{
-			bool answer = await DisplayAlert("Usuwanie kategorii", $"Czy na pewno chcesz usun¹æ kategoriê '{sender.Text}'?", "Tak", "Nie");
+			bool answer = await DisplayAlert("Deleting category", $"Are you sure you want to delete category '{sender.Text}'?", "Yes", "No");
 			if (answer)
 			{
                 Console.WriteLine($"Deleting category with name {sender.Text}");
@@ -207,11 +207,11 @@ public partial class Categories : ContentPage
                 if (apiResult)
                 {
                     Console.WriteLine($"API call 'CategoryDelete' finished with result {apiResult}");
-                    ToastService.ShowShort("Poprawnie usuniêto kategoriê");
+                    ToastService.ShowShort("Successfully deleted category");
                     await ReloadView();
                 }
                 else
-                    ToastService.ShowShort("Wyst¹pi³ problem podczas usuwania kategorii");
+                    ToastService.ShowShort("An error occured while deleting the category");
             }
         }
     }
@@ -220,7 +220,7 @@ public partial class Categories : ContentPage
     {
         var sender = (Label)s;
         Console.WriteLine($"Tapped list with name {sender.ClassId}");
-		// TODO przejœcie do kategorii
+		// TODO przejÅ“cie do kategorii
     }
 
     private async void Gesture_List_DoubleTap(object s, EventArgs e)
@@ -234,10 +234,10 @@ public partial class Categories : ContentPage
         var category = ListOfCategories.Where(a => a.Id == categoryId);
         var list = category.Single().Lists.Where(a => a.Id == listId);
 
-        string action = await DisplayActionSheet("Opcje listy", "Anuluj", null, new string[] { "Edytuj", "Usuñ" });
-        if (action == "Edytuj")
+        string action = await DisplayActionSheet("List options", "Cancel", null, new string[] { "Edit", "Delete" });
+        if (action == "Edit")
         {
-            string result = await DisplayPromptAsync("Edytuj listê", "Podaj nazwê listy", cancel: "Anuluj", initialValue: sender.Text);
+            string result = await DisplayPromptAsync("Edit list", "Enter list name", cancel: "Cancel", initialValue: sender.Text);
             if (result is not null)
             {
                 Console.WriteLine($"Changing list name from {sender.Text} to {result}");
@@ -245,16 +245,16 @@ public partial class Categories : ContentPage
                 if (apiResult)
                 {
                     Console.WriteLine($"API call 'ListEdit' finished with result {apiResult}");
-                    ToastService.ShowShort("Poprawnie zmieniono nazwê listy");
+                    ToastService.ShowShort("Successfully changed list name");
                     await ReloadView();
                 }
                 else
-                    ToastService.ShowShort("Wyst¹pi³ problem podczas zmieniania nazwy listy");
+                    ToastService.ShowShort("An error occured while editing the list");
             }
         }
-        else if (action == "Usuñ")
+        else if (action == "Delete")
         {
-            bool answer = await DisplayAlert("Usuwanie listy", $"Czy na pewno chcesz usun¹æ listê '{sender.Text}'?", "Tak", "Nie");
+            bool answer = await DisplayAlert("Deleting list", $"Are you sure you want to delete list '{sender.Text}'?", "Yes", "No");
             if (answer)
             {
                 Console.WriteLine($"Deleting list with name {sender.Text}");
@@ -262,11 +262,11 @@ public partial class Categories : ContentPage
                 if (apiResult)
                 {
                     Console.WriteLine($"API call 'ListDelete' finished with result {apiResult}");
-                    ToastService.ShowShort("Poprawnie usuniêto listê");
+                    ToastService.ShowShort("Successfully deleted list");
                     await ReloadView();
                 }
                 else
-                    ToastService.ShowShort("Wyst¹pi³ problem podczas usuwania listy");
+                    ToastService.ShowShort("An error occured while deleting list");
             }
         }
     }
