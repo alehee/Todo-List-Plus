@@ -121,6 +121,30 @@ namespace Todo_List_Plus.Services
         #endregion
 
         #region Lists
+        public static async Task<IEnumerable<List>> ListsGet(User user)
+        {
+            List<List> lists = new List<List>();
+
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.PostAsync(Env.API_HOST + $"api/Todo/GetLists?userId={user.Id}", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonNode = JsonNode.Parse(await response.Content.ReadAsStringAsync());
+                if (jsonNode["type"].ToString() != "SUCCESS")
+                    return lists;
+
+                JsonArray jsonArray = jsonNode["message"].AsArray();
+                foreach (var jsonList in jsonArray)
+                {
+                    var list = new List { Id = (int)jsonList["id"], Name = (string)jsonList["name"] };
+                    lists.Add(list);
+                }
+            }
+
+            return lists;
+        }
+
         public static async Task<IEnumerable<List>> ListsGet(Category category, User user)
         {
             List<List> lists = new List<List>();
@@ -177,6 +201,131 @@ namespace Todo_List_Plus.Services
         {
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.PostAsync(Env.API_HOST + $"api/Todo/ListDelete?listId={list.Id}", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonNode = JsonNode.Parse(await response.Content.ReadAsStringAsync());
+                return jsonNode["type"].ToString() == "SUCCESS";
+            }
+
+            return false;
+        }
+
+        public static async Task<IEnumerable<List>> ListsWithoutCategory(User user, IEnumerable<List> prevLists)
+        {
+            List<List> lists = new List<List>();
+
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.PostAsync(Env.API_HOST + $"api/Todo/GetListCategories?userId={user.Id}", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonNode = JsonNode.Parse(await response.Content.ReadAsStringAsync());
+                if (jsonNode["type"].ToString() != "SUCCESS")
+                    return lists;
+
+                JsonArray jsonArray = jsonNode["message"].AsArray();
+                foreach (var jsonList in jsonArray)
+                {
+                    if ((int?)jsonList["categoryId"] is not null)
+                        continue;
+
+                    var list = prevLists.Where(a => a.Id == (int)jsonList["listId"]).Single();
+                    lists.Add(list);
+                }
+            }
+
+            return lists;
+        }
+        #endregion
+
+        #region Tasks
+        public static async Task<IEnumerable<Models.Task>?> TasksGet(List list)
+        {
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.PostAsync(Env.API_HOST + $"api/Todo/GetTasks?listId={list.Id}", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonNode = JsonNode.Parse(await response.Content.ReadAsStringAsync());
+                if (jsonNode["type"].ToString() != "SUCCESS")
+                    return null;
+
+                List<Models.Task> tasks = new();
+                JsonArray jsonArray = jsonNode["message"].AsArray();
+                foreach (var jsonTask in jsonArray)
+                {
+                    var task = new Models.Task { Id = (int)jsonTask["id"], Name = (string)jsonTask["name"], IsCompleted = (jsonTask["completedAt"] is not null) };
+                    tasks.Add(task);
+                }
+                return tasks;
+            }
+
+            return null;
+        }
+
+        public static async Task<bool> TaskAdd(string name, User user, List list)
+        {
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.PostAsync(Env.API_HOST + $"api/Todo/TaskAdd?name={HttpUtility.UrlEncodeUnicode(name)}&userId={user.Id}&listId={list.Id}", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonNode = JsonNode.Parse(await response.Content.ReadAsStringAsync());
+                return jsonNode["type"].ToString() == "SUCCESS";
+            }
+
+            return false;
+        }
+
+        public static async Task<bool> TaskEdit(string name, Models.Task task)
+        {
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.PostAsync(Env.API_HOST + $"api/Todo/TaskEdit?name={HttpUtility.UrlEncodeUnicode(name)}&taskId={task.Id}", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonNode = JsonNode.Parse(await response.Content.ReadAsStringAsync());
+                return jsonNode["type"].ToString() == "SUCCESS";
+            }
+
+            return false;
+        }
+
+        public static async Task<bool> TaskDelete(Models.Task task)
+        {
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.PostAsync(Env.API_HOST + $"api/Todo/TaskDelete?taskId={task.Id}", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonNode = JsonNode.Parse(await response.Content.ReadAsStringAsync());
+                return jsonNode["type"].ToString() == "SUCCESS";
+            }
+
+            return false;
+        }
+
+        public static async Task<bool> TaskToggle(int taskId)
+        {
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.PostAsync(Env.API_HOST + $"api/Todo/TaskToggle?taskId={taskId}", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonNode = JsonNode.Parse(await response.Content.ReadAsStringAsync());
+                return jsonNode["type"].ToString() == "SUCCESS";
+            }
+
+            return false;
+        }
+        #endregion
+
+        #region User management
+        public static async Task<bool> UserAdd(string username, List list)
+        {
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.PostAsync(Env.API_HOST + $"api/Todo/ListAddUser?username={HttpUtility.UrlEncodeUnicode(username)}&listId={list.Id}", null);
 
             if (response.IsSuccessStatusCode)
             {
