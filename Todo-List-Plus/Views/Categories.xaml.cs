@@ -6,6 +6,7 @@ namespace Todo_List_Plus.Views;
 public partial class Categories : ContentPage
 {
 	IEnumerable<Category> ListOfCategories { get; set; }
+    IEnumerable<Models.List> ListOfListsWithoutCategory { get; set; }
     User LoggedUser { get; set; }
 
 	public Categories(User user)
@@ -31,8 +32,9 @@ public partial class Categories : ContentPage
             return;
         }
 
-        var listsWithoutCategory = await RestService.ListsWithoutCategory(LoggedUser, await RestService.ListsGet(LoggedUser));
-        AppendCategory(new Category { Id = 0, Name = "Without category", Lists = listsWithoutCategory.ToList() });
+        ListOfListsWithoutCategory = await RestService.ListsWithoutCategory(LoggedUser, await RestService.ListsGet(LoggedUser));
+        if (ListOfListsWithoutCategory.Any())
+            AppendCategory(new Category { Id = 0, Name = "Without category", Lists = ListOfListsWithoutCategory.ToList() });
 
         foreach (Category category in ListOfCategories)
         {
@@ -226,10 +228,11 @@ public partial class Categories : ContentPage
         var sender = (Label)s;
         Console.WriteLine($"Tapped list with name {sender.ClassId}");
         string[] identities = sender.ClassId.Split('_');
-        var list = ListOfCategories.Where(a => a.Id == Convert.ToInt32(identities[1])).Single().Lists.Where(a => a.Id == Convert.ToInt32(identities[2])).Single();
+        Models.List list;
 
         if (identities[1] == "0")
         {
+            list = ListOfListsWithoutCategory.Where(a => a.Id == Convert.ToInt32(identities[2])).Single();
             string[] categoriesStrings = ListOfCategories.Select(a => a.Name).ToArray();
             string action = await DisplayActionSheet("Add list to category", "Cancel", null, categoriesStrings);
             var categoryQuery = ListOfCategories.Where(a => a.Name == action);
@@ -247,7 +250,8 @@ public partial class Categories : ContentPage
             }
             return;
         }
-        
+
+        list = ListOfCategories.Where(a => a.Id == Convert.ToInt32(identities[1])).Single().Lists.Where(a => a.Id == Convert.ToInt32(identities[2])).Single();
         await Navigation.PushAsync(new List(LoggedUser, list));
     }
 
