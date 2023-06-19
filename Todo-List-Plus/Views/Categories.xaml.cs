@@ -6,6 +6,7 @@ namespace Todo_List_Plus.Views;
 public partial class Categories : ContentPage
 {
 	IEnumerable<Category> ListOfCategories { get; set; }
+    IEnumerable<Models.List> ListOfListsWithoutCategory { get; set; }
     User LoggedUser { get; set; }
 
 	public Categories(User user)
@@ -31,13 +32,17 @@ public partial class Categories : ContentPage
             return;
         }
 
+        ListOfListsWithoutCategory = await RestService.ListsWithoutCategory(LoggedUser, await RestService.ListsGet(LoggedUser));
+        if (ListOfListsWithoutCategory.Any())
+            AppendCategory(new Category { Id = 0, Name = "Without category", Lists = ListOfListsWithoutCategory.ToList() });
+
         foreach (Category category in ListOfCategories)
         {
             AppendCategory(category);
         }
     }
 
-    async Task ReloadView()
+    async System.Threading.Tasks.Task ReloadView()
     {
         await Navigation.PushAsync(new Categories(LoggedUser));
     }
@@ -66,12 +71,13 @@ public partial class Categories : ContentPage
 		header.ClassId = $"category_{category.Id}";
 		header.Text = category.Name;
 		header.Margin = new Thickness(10, 20, 10, 0);
-		header.TextColor = Color.FromRgb(255, 255, 255);
+		header.TextColor = Color.FromRgb(211, 174, 211);
 		header.HorizontalTextAlignment = TextAlignment.Center;
 		header.FontSize = 18;
 		header.FontAttributes = FontAttributes.Bold;
 		header.GestureRecognizers.Add(headerSingleTap);
-        header.GestureRecognizers.Add(headerDoubleTap);
+        if (category.Id != 0)
+            header.GestureRecognizers.Add(headerDoubleTap);
         vsl.Add(header);
 
 		foreach(var l in category.Lists)
@@ -82,7 +88,8 @@ public partial class Categories : ContentPage
 			option.Margin = new Thickness(5);
 			option.HorizontalTextAlignment = TextAlignment.Center;
 			option.GestureRecognizers.Add(listSingleTap);
-            option.GestureRecognizers.Add(listDoubleTap);
+            if (category.Id != 0)
+                option.GestureRecognizers.Add(listDoubleTap);
             vsl.Add(option);
         }
 		VSL_Main.Add(vsl);
@@ -156,7 +163,7 @@ public partial class Categories : ContentPage
             if (apiResult)
             {
                 Console.WriteLine($"API call 'CategoryAdd' finished with result {apiResult}");
-                ToastService.ShowShort("Successfully adde new category");
+                ToastService.ShowShort("Successfully added new category");
                 await ReloadView();
             }
             else
@@ -216,11 +223,36 @@ public partial class Categories : ContentPage
         }
     }
 
-    private void Gesture_List_SingleTap(object s, EventArgs e)
+    private async void Gesture_List_SingleTap(object s, EventArgs e)
     {
         var sender = (Label)s;
         Console.WriteLine($"Tapped list with name {sender.ClassId}");
-		// TODO przejœcie do kategorii
+        string[] identities = sender.ClassId.Split('_');
+        Models.List list;
+
+        if (identities[1] == "0")
+        {
+            list = ListOfListsWithoutCategory.Where(a => a.Id == Convert.ToInt32(identities[2])).Single();
+            string[] categoriesStrings = ListOfCategories.Select(a => a.Name).ToArray();
+            string action = await DisplayActionSheet("Add list to category", "Cancel", null, categoriesStrings);
+            var categoryQuery = ListOfCategories.Where(a => a.Name == action);
+            if (categoryQuery.Any())
+            {
+                bool apiResult = await RestService.ListEdit(list.Name, categoryQuery.Single(), list, LoggedUser);
+                if (apiResult)
+                {
+                    Console.WriteLine($"API call 'ListEdit' finished with result {apiResult}");
+                    ToastService.ShowShort("Successfully changed list category");
+                    await ReloadView();
+                }
+                else
+                    ToastService.ShowShort("An error occured while editing the list");
+            }
+            return;
+        }
+
+        list = ListOfCategories.Where(a => a.Id == Convert.ToInt32(identities[1])).Single().Lists.Where(a => a.Id == Convert.ToInt32(identities[2])).Single();
+        await Navigation.PushAsync(new List(LoggedUser, list));
     }
 
     private async void Gesture_List_DoubleTap(object s, EventArgs e)
